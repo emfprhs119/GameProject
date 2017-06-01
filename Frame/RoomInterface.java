@@ -1,6 +1,7 @@
 package Frame;
 
 import java.awt.Container;
+import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -11,22 +12,15 @@ import Main.Project;
 @SuppressWarnings("serial")
 public class RoomInterface extends Container {	//StoryRoom(게임화면)에 사용되는 배경과 stop버튼 정의
 	JLabel stop;
-	JLabel backGround;
 	StopMenu stopMenu;
 	StoryRoom room;
 	private GameFrame gameFrame;
 	RoomInterface(GameFrame gameFrame) {	//생성자 (마스터 프레임을 받아옴)
 		this.gameFrame=gameFrame;
-		
 		setSize(Project.windowSize.x, Project.windowSize.y); // 창 크기
 		setLocation(0, 0); // 창 위치
 		this.setLayout(null);
-		backGround=new JLabel();
-		Project.setLabelImage(backGround, "background.png");	// 백그라운드 설정
-		backGround.setLocation(-8, -25);
-		addStopMenu();	// 일지정지 메뉴 추가 -길어져서 메소드로 따로 빼놓음
-		add(backGround);	// 추가 순서를 바꿀시 앞뒤 구분이 있기 때문에 맨 위 객체를 맨 나중에 추가
-        
+		addStopMenu();
 	}
 	private void addStopMenu() {
 		// TODO Auto-generated method stub
