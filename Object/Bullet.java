@@ -1,8 +1,12 @@
+package Object;
+
 import java.awt.Point;
 import java.util.Iterator;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+
+import Frame.StoryRoom;
 
 public class Bullet extends MoveObject {
 	/*필요 알고리즘 
@@ -10,25 +14,34 @@ public class Bullet extends MoveObject {
 	 */
 	Iterator it; //피격판정을 위한 반복자
 	MoveObject obj;
+	Block obj1;
 	double di;
-	public Bullet(Point xy, Point point,Prototype p) {
+	
+	public Bullet(Point xy, Point gotoXY,StoryRoom p) {	// 플레이어와 몬스터의 공격액션을 담당(둘다 상속받아서 사용)
 		super(p); // 상속 진짜 good!!!!!!!!!
 		x = xy.x;
 		y = xy.y;
-		speed = 2f;
+		speed = 1f;
 		setImage("bullet.png");
-		setAngle(point);
-		t.start();
+		setAngle(gotoXY);
+		thread.start();
 		//removeAll();
 		
 	}
-
-	public void Moving() {
+	public void step(){
+		moving();
+		attackedDecision();
+	}
+	public void attackedDecision() {
+		// TODO Auto-generated method stub
+		
+	}
+	public void moving() {
 		angle = (float)Math.sqrt(Math.pow(angleX, (float) 2) + Math.pow(angleY, (float) 2));
 		x += speed * (angleX / angle);
 		y += speed * (angleY / angle);
 		setLocation((int) x, (int) y);
-		if (x>windows.getWidth()-50 || x<10 || y>windows.getHeight()-50 || y<10){
+		if (x>room.getWidth()-50-13 || x<50-8+3 || y>room.getHeight()-50-30-3 || y<40+3){
 			remove();
 			/*이거 일단 제거이긴 한데 new로 만들어진것이기 때문에 
 			 * 자신을 null값으로 만들 방법이 없음 메인에서 하나씩 할당하고 null로 제거해도 되지만 
@@ -36,35 +49,18 @@ public class Bullet extends MoveObject {
 			 */
 		}
 	}
-	public void attackedDecision() {
-		it=windows.monsterList.iterator();
-		while(it.hasNext()){
-			obj=(MoveObject) it.next();
-			if (distance(obj)){
-				obj.remove();
-				it.remove();
-				remove();
-				break;
-			}
-		}
-	}
+	
 	public boolean distance(MoveObject object){
-		di = Math.sqrt(Math.pow(x-object.getPoint().x, (float) 2) + Math.pow(y-object.getPoint().y, (float) 2));
-		if (di<20)
+		object.setOrigin();
+		di = Math.sqrt(Math.pow(originX-object.originX, (float) 2) + Math.pow(originY-object.originY, (float) 2));
+		if (di<object.width/2)
 			return true;
 		else
 			return false;
 	}
-	
-	public void run() {	// 오버라이딩
-		while (true) {
-			Moving();
-			attackedDecision();
-			try {
-				Thread.sleep(2); // Step-반복의 시간을 결정 숫자가 작을수록 고성능 요구
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+	@Override
+	void damage(int power) {
+		// TODO Auto-generated method stub
+		
 	}
 }
