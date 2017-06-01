@@ -2,18 +2,9 @@ package Listener;
 
 import java.awt.Point;
 
-import Block.Block1;
-import Block.Block2;
-import Block.ClearSite;
-import Block.PassBlock;
+import Block.*;
 import Frame.StoryRoom;
-import Main.Project;
-import Monster.fireBall;
-import Monster.Bet;
-import Monster.Slime;
-import Monster.DeathReaper;
-import Monster.SlimeR;
-import Monster.SlimeH;
+import Monster.*;
 import Object.Block;
 import Object.Monster;
 
@@ -21,7 +12,7 @@ public class Creator {
 	StoryRoom room;
 	public enum ClearCase{이동,전멸,제거,버티기}
 	public enum MonsterName {
-		Bet, DeathReaper, Slime, SlimeR, SlimeH,fireBall
+		Bet, DeathReaper, Slime, SlimeR, SlimeH,fireBall,BulletBet
 	}
 
 	public enum BlockName {
@@ -95,6 +86,9 @@ public class Creator {
 			break;
 		case 5:
 			monster = new fireBall(point, room);
+			break;
+		case 6:
+			monster = new BulletBet(point, room);
 			break;
 		}
 		monster.moveHp();

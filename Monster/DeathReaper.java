@@ -14,7 +14,7 @@ import Object.Monster;
 
 //첫번째 몬스터 클래스
 @SuppressWarnings("serial")
-public class DeathReaper extends Monster { // 이름 가명칭-이름을 제대로 지어줍시다! 몬스터1이라니! 어떻게 알아먹나요!
+public class DeathReaper extends Monster {
 	public enum Motion { // 모션 정의
 		Init, Move, Attack
 	};

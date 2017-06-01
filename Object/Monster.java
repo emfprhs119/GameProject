@@ -1,8 +1,11 @@
 package Object;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.util.LinkedList;
@@ -22,21 +25,22 @@ public class Monster extends MoveObject { // ´Ù¾çÇÑ ¸ó½ºÅÍ¸¦ ÇÏ³ªÀÇ °´Ã¼·Î ÃÊ±âÈ
 	public LinkedList<Bullet> bulletList;
 	public int flag;
 	public int time;
+
 	public Monster(int MonsterHp, Point xy, StoryRoom room) { // »ý¼ºÀÚ
 		super(room);
-		time=0;
+		time = 0;
 		bulletList = new LinkedList<Bullet>();
 		hp = new Hp(MonsterHp, room, false);// ³­ÀÌµµ¿Í ½ºÅ×ÀÌÁö¹øÈ£ -Á¡Â÷ÀûÀ¸·Î °­ÇØÁö´Â Àû ¿Ï¼º!
 		x = xy.x;
 		y = xy.y;
 		initX = x;
 		count = 0;
-		flag=-1;
-		gotoX =- 10;// (Math.random() * Project.windowSize.x);
+		flag = -1;
+		gotoX = -10;// (Math.random() * Project.windowSize.x);
 		gotoY = y;// (Math.random() * Project.windowSize.y);
-		speed=200/x;
+		speed = 0.16f;//200 / x;
 		moveCount = 0;
-		attackCount=0;
+		attackCount = 0;
 		colliderSpeed = speed;
 		setAngle(new Point((int) gotoX, (int) gotoY));
 		setImage(name + "init.gif");
@@ -44,7 +48,7 @@ public class Monster extends MoveObject { // ´Ù¾çÇÑ ¸ó½ºÅÍ¸¦ ÇÏ³ªÀÇ °´Ã¼·Î ÃÊ±âÈ
 		height = icon.getIconHeight();
 		moveHp();
 		room.tmpMonsterList[room.stageInitNum].add(this);
-		if (!room.creatorRoom){
+		if (!room.creatorRoom) {
 			setVisible(false);
 		}
 		room.add(this);
@@ -52,7 +56,7 @@ public class Monster extends MoveObject { // ´Ù¾çÇÑ ¸ó½ºÅÍ¸¦ ÇÏ³ªÀÇ °´Ã¼·Î ÃÊ±âÈ
 
 	public void step() {
 		setOrigin();
-		if (flag==-1)
+		if (flag == -1)
 			initMove();
 		else {
 			colliderSpeed = speed;
@@ -63,21 +67,18 @@ public class Monster extends MoveObject { // ´Ù¾çÇÑ ¸ó½ºÅÍ¸¦ ÇÏ³ªÀÇ °´Ã¼·Î ÃÊ±âÈ
 		}
 	}
 
-
-
 	public void initMove() {
-		
-		if (initX < x){
-			if (x<Project.windowSize.x+width){
-				speed=0.16f;
+
+		if (initX < x) {
+			if (x < Project.windowSize.x + width) {
+				speed = 0.16f;
 				setVisible(true);
 				hp.hpVisible(true);
 			}
 			move();
-		}
-		else{
-			speed=0;
-			flag=0;
+		} else {
+			speed = 0;
+			flag = 0;
 		}
 	}
 
@@ -89,7 +90,7 @@ public class Monster extends MoveObject { // ´Ù¾çÇÑ ¸ó½ºÅÍ¸¦ ÇÏ³ªÀÇ °´Ã¼·Î ÃÊ±âÈ
 
 	// ÀÏ´Ü °øÅëÀ¸·Î »©µÎ¾úÀ¸³ª ¹Ýµå½Ã ÇÊ¿äÇÑ°æ¿ì °¢ °³Ã¼·Î ´Ù½Ã ÀÌµ¿ °¡´É
 	public void move() { // ÀÌµ¿
-		angle = (float) Math.sqrt(angleX*angleX+angleY*angleY);
+		angle = (float) Math.sqrt(angleX * angleX + angleY * angleY);
 		x += speed * (angleX / angle) * room.step;
 		y += speed * (angleY / angle) * room.step;
 		// collider(); // Ãæµ¹È®ÀÎ
@@ -119,13 +120,15 @@ public class Monster extends MoveObject { // ´Ù¾çÇÑ ¸ó½ºÅÍ¸¦ ÇÏ³ªÀÇ °´Ã¼·Î ÃÊ±âÈ
 		}
 	}
 
+	
+
 	public void setImage(String img) {
 		super.setImage("monster/" + img);
 	}
 
 	public void remove() { // Á¦°Å
 		hp.remove();
-		new Explode((int)x,(int)y,room);
+		new Explode((int) x, (int) y, room);
 		super.remove();
 	}
 

@@ -41,7 +41,7 @@ public class StoryRoom extends JPanel implements Runnable {
 	public LinkedList<Bullet> bulletList; // 총알(공격판정 모션들) 리스트
 	public LinkedList<Block> blockList; // 블럭 리스트
 	public LinkedList<Explode> explodeList; // 블럭 리스트
-	Iterator<?> it;	//	반복자
+	Iterator<?> it; // 반복자
 	BaseObject other; // 기본 오브젝트
 	public int difficulty; // 어려움모드,레벨
 	public int stage;
@@ -53,23 +53,27 @@ public class StoryRoom extends JPanel implements Runnable {
 	public int clearNum;
 	public String clearObject;
 	public String clearTime;
-	//private MissionStory missionStory;
+	public int nextTime;
+	// private MissionStory missionStory;
 	public boolean creatorRoom;
 	public int time;
 	private Scanner scan;
 	public int stageInitNum;
-
+ float imgX;
 	public StoryRoom(GameFrame gameFrame) { // 생성자
 		this();
 		this.gameFrame = gameFrame;
 		add(new RoomInterface(gameFrame));
-		creatorRoom=false;
-		/*missionStory = new MissionStory(this);
-		add(missionStory);*/
+		creatorRoom = false;
+		/*
+		 * missionStory = new MissionStory(this); add(missionStory);
+		 */
 	}
 
 	public StoryRoom() { // 초기화
-		step = 17; // 현재 최적설정(내컴퓨터)
+		step = 10; // 현재 최적설정(17)
+		nextTime = 8000/step;
+		imgX=0;
 		setLayout(null); // 레이아웃을 null로 해줘야 맘대로 배치가 가능
 		monsterList = new LinkedList<Monster>();
 		bulletList = new LinkedList<Bullet>();
@@ -83,27 +87,28 @@ public class StoryRoom extends JPanel implements Runnable {
 		addKeyListener(new MyListener(this));
 		addMouseMotionListener(new MyListener(this));
 		addMouseListener(new MyListener(this));
-		stageInitNum=0;
+		stageInitNum = 0;
 		try {
 			scan = new Scanner(new File("stage.txt"));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		tmpMonsterList=new LinkedList[1];
-		tmpMonsterList[0]=new LinkedList();
+		tmpMonsterList = new LinkedList[1];
+		tmpMonsterList[0] = new LinkedList();
 	}
+
 	public void paintComponent(Graphics g) {
-		g.drawImage(icon.getImage(), 0, 0, null);
+		g.drawImage(icon.getImage(),(int)(imgX), 0, null);
 		setOpaque(false);
-		
+
 		super.paintComponent(g);
-		if (clearNum==3){
-		g.setFont(new Font("TimesRoman", Font.PLAIN, 40));
-		g.setColor(Color.RED);
-		g.drawString(time+"/"+(Integer.parseInt(clearTime)*step*10), Project.windowSize.x/2-50, 100);
+		if (clearNum == 3) {
+			g.setFont(new Font("TimesRoman", Font.PLAIN, 40));
+			g.setColor(Color.RED);
+			g.drawString(time + "/" + (Integer.parseInt(clearTime) * step * 10), Project.windowSize.x / 2 - 50, 100);
 		}
-		
+
 	}
 
 	public void run() { // 각 오브젝트의 step처리 스레드
@@ -111,8 +116,11 @@ public class StoryRoom extends JPanel implements Runnable {
 			if (!stop) {
 				time++;
 				player.step();
+				imgX-=0.16*step;
+				imgX%=960;
+				
 				try {
-					for (Monster monster : monsterList){
+					for (Monster monster : monsterList) {
 						monster.step(); // 몬스터 step
 					}
 					for (Bullet bullet : bulletList)
@@ -126,9 +134,10 @@ public class StoryRoom extends JPanel implements Runnable {
 					clearStage();
 				if (isFailStage())
 					failStage();
-				if (time>=Integer.parseInt(clearTime)*step){
-					stageNext(stage += 1);
-					time=0;
+				if (time >= nextTime && stage < gameFrame.roomCreate.stageSel.table.getRowCount()) {
+					stageNext(++stage);
+					time = 0;
+
 				}
 			}
 			try {
@@ -155,8 +164,8 @@ public class StoryRoom extends JPanel implements Runnable {
 			Initialization(difficulty, stage);
 			break;
 		default:
-			if (stage>0)
-			Initialization(difficulty, stage -= 1);
+			if (stage > 0)
+				Initialization(difficulty, stage -= 1);
 			else
 				Initialization(difficulty, stage);
 			break;
@@ -164,13 +173,12 @@ public class StoryRoom extends JPanel implements Runnable {
 	}
 
 	void clearStage() {
-		// 여기에 스테이지 이동 메뉴창을 띄울 예정(메인,스테이지선택,다음스테이지,재도전 등 넣을 예정//클리어타임 등도 넣을거임)
 		// 조건 달성시 스테이지 +1로 이동
-		
-		//stageInit();
+
+		// stageInit();
 		int choiceNum = 0;
 		String[] choices = { "돌아가기", "다시하기", "다음 라운드" };
-		choiceNum = JOptionPane.showOptionDialog(null, "Stage " + (stage + 1) + " 미션에 성공하셨습니다.", "미션성공",
+		choiceNum = JOptionPane.showOptionDialog(null, " 미션에 성공하셨습니다.", "미션성공",
 				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
 		switch (choiceNum) {
 		case 0:
@@ -187,32 +195,33 @@ public class StoryRoom extends JPanel implements Runnable {
 	}
 
 	public void stageNext(int i) {
-		if (i>1)
-			return;
-		while(!tmpMonsterList[i].isEmpty())
+		if (stop == false) {
+			if (i >= gameFrame.roomCreate.stageSel.table.getRowCount())
+				return;
+		}
+		while (!tmpMonsterList[i].isEmpty())
 			monsterList.add(tmpMonsterList[i].poll());
 	}
 
 	private boolean isClearStage(int clearNum) { // 스테이지 클리어
 		// 스테이지별로 클리어 조건을 다르게 설정할 경우 여기서 판단할 수 있음
-		clearNum=1;//모든 몹을 다 잡는걸로 강제 설정
-		clearTime="25";
+		// clearNum=1;//모든 몹을 다 잡는걸로 강제 설정
 		switch (clearNum) {
 		case 0:
 			it = blockList.iterator();
 			while (it.hasNext()) {
 				other = (BaseObject) it.next();
-				if (other.name.equals(clearObject)) 
-					if (player.distanceTo(other)<30)
+				if (other.name.equals(clearObject))
+					if (player.distanceTo(other) < 30)
 						return true;
 			}
 			break;
 		case 1:
 			if (monsterList.isEmpty()) {
-				boolean clear=true;
-				for(int i=0;i<gameFrame.roomCreate.stageSel.table.getRowCount();i++){
-					if (!tmpMonsterList[i].isEmpty())
-						clear=false;
+				boolean clear = true;
+				for (int i = 0; i < gameFrame.roomCreate.stageSel.table.getRowCount(); i++) {
+					if (!tmpMonsterList[i].isEmpty() || stage != gameFrame.roomCreate.stageSel.table.getRowCount())
+						clear = false;
 				}
 				return clear;
 			}
@@ -228,16 +237,15 @@ public class StoryRoom extends JPanel implements Runnable {
 				}
 			}
 			return true;
-			//break;
+			// break;
 		case 3:
-			//System.out.println(time+"/"+(Integer.parseInt(clearTime)*step));
-			if (time>=Integer.parseInt(clearTime)*step){
+			// System.out.println(time+"/"+(Integer.parseInt(clearTime)*step));
+			if (time >= Integer.parseInt(clearTime) * step) {
 				stageNext(stage += 1);
-				time=0;
+				time = 0;
 				return true;
-			}
-			else
-					return false;
+			} else
+				return false;
 		default:
 			return false;
 		}
@@ -269,23 +277,23 @@ public class StoryRoom extends JPanel implements Runnable {
 		removeAllObject();
 		stagesInit(stage);
 		stageBackground(stage);
-		//missionStory.Init(stage, clearNum);
-		//missionStory.setVisible(true);
-		stop=false;
+		// missionStory.Init(stage, clearNum);
+		// missionStory.setVisible(true);
+		stop = false;
 		repaint();
 		requestFocus();
 		if (thread.getState() == Thread.State.NEW) // 스레드가 시작한적이 없다면
 			thread.start(); // 한번만 호출
-		time=0;
+		time = 0;
 	}
 
 	private void stagesInit(int stage) {
-		tmpMonsterList=new LinkedList[gameFrame.roomCreate.stageSel.table.getRowCount()];
-		for(int i=0;i<gameFrame.roomCreate.stageSel.table.getRowCount();i++){
-			tmpMonsterList[i]=new LinkedList();
-			stageInitNum=i;
+		tmpMonsterList = new LinkedList[gameFrame.roomCreate.stageSel.table.getRowCount()];
+		for (int i = 0; i < gameFrame.roomCreate.stageSel.table.getRowCount(); i++) {
+			tmpMonsterList[i] = new LinkedList();
+			stageInitNum = i;
 			stageInit(i);
-			//System.out.println(i);
+			// System.out.println(i);
 		}
 		stageNext(stage);
 	}
@@ -333,8 +341,12 @@ public class StoryRoom extends JPanel implements Runnable {
 				case "P": // 플레이어 위치
 					x = Integer.parseInt(st.nextToken());
 					y = Integer.parseInt(st.nextToken());
-					//player = new Player(x, y, this);
-					//add(player);
+					if (player == null) {
+						player = new Player(x, y, this);
+						player.y = (Project.windowSize.y / 2 - player.icon.getIconHeight() / 2);
+						player.move(100, Project.windowSize.y / 2 - player.icon.getIconHeight() / 2);
+						add(player);
+					}
 					break;
 				case "B": // 벽 종류,위치와 크기
 					num = Integer.parseInt(st.nextToken());
@@ -351,28 +363,28 @@ public class StoryRoom extends JPanel implements Runnable {
 					while (st.hasMoreTokens()) {
 						x = Integer.parseInt(st.nextToken());
 						y = Integer.parseInt(st.nextToken());
-						monster=creator.getMonster(num, new Point(x, y));
-						if (monster.x < 0 || monster.x > Project.windowSize.x  || monster.y < 0 || monster.y > Project.windowSize.y ){
+						monster = creator.getMonster(num, new Point(x, y));
+						if (monster.x < 0 || monster.x > Project.windowSize.x || monster.y < 0 || monster.y > Project.windowSize.y) {
 							monster.remove();
 						}
 						if (!creatorRoom)
-							monster.x+=Project.windowSize.x;
+							monster.x += Project.windowSize.x;
 					}
 					break;
 				case "C":
 					clearNum = Integer.parseInt(st.nextToken());
 					clearObject = st.nextToken();
-					clearTime=st.nextToken();
+					clearTime = st.nextToken();
 					break;
 				}
 			}
 			if (player == null) {
-				player = new Player(100,100, this);
-				player.y=(Project.windowSize.y/2-player.icon.getIconHeight()/2);
-				//player.setLocation(100, (int) (Project.windowSize.y/2-player.height/2));
+				player = new Player(100, 100, this);
+				player.y = (Project.windowSize.y / 2 - player.icon.getIconHeight() / 2);
+				player.setLocation(100, (int) (Project.windowSize.y / 2 - player.height / 2));
 				clearNum = 0;
 				clearObject = "null";
-				clearTime="";
+				clearTime = "";
 				add(player);
 			}
 			scan.close();
@@ -388,14 +400,14 @@ public class StoryRoom extends JPanel implements Runnable {
 		}
 		while (!monsterList.isEmpty())
 			monsterList.pop().remove();
-		for (Bullet bullet:bulletList)
+		for (Bullet bullet : bulletList)
 			bullet.remove();
 		while (!blockList.isEmpty()) {
 			Block block = blockList.pop();
 			this.remove(block);
 			blockList.remove(block);
 		}
-		bulletList=new LinkedList<Bullet>();
+		bulletList = new LinkedList<Bullet>();
 	}
-	
+
 }

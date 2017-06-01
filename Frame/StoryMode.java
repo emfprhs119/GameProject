@@ -12,7 +12,6 @@ import javax.swing.JPanel;
 
 import Listener.GotoPanel;
 import Main.Project;
-
 @SuppressWarnings("serial")
 public class StoryMode extends JPanel {	//스테이지 선택
 	JButton difficulty, back;	//난이도 버튼,뒤로가기(메인메뉴) 버튼

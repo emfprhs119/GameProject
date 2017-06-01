@@ -29,7 +29,7 @@ public class BulletOfCharacter extends Bullet {// 플레이어의 총알
 	private void setSpeed() { // 종류별 속도
 		switch (kind) {
 		case Normel:
-			speed = 0.3f;
+			speed = 0.4f;
 			break;
 		case Skill:
 			speed = 0.3f;
@@ -40,7 +40,7 @@ public class BulletOfCharacter extends Bullet {// 플레이어의 총알
 	public void step() {
 		if (flag){
 		if (kind == Bullet.Normel)
-			currSpeed += 0.03f;
+			currSpeed += 0.04f;
 		if (kind == Bullet.Skill )
 			if (0==time%50)
 				homing(monster);

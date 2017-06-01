@@ -3,12 +3,10 @@ package Frame;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
+import javax.media.Player;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import Main.Project;
@@ -16,6 +14,7 @@ import Listener.GotoPanel;
 
 @SuppressWarnings("serial")
 public class MainMenu extends JPanel {	//메인메뉴
+	Player p;
 	JButton button;	//버튼들 정의
 	int x,y;	//버튼 위치지정
 	ImageIcon icon;
@@ -61,7 +60,6 @@ public class MainMenu extends JPanel {	//메인메뉴
 		}});
 		add(button);
 		setLayout(null);
-		
 	}
 	public void paintComponent(Graphics g) {
 		gameFrame.paintComponents(g);
