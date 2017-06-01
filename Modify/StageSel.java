@@ -21,7 +21,7 @@ import javax.swing.table.TableColumnModel;
 
 import Main.Project;
 
-public class StageSel extends JFrame {
+public class StageSel extends JFrame {	//미구현
 	JScrollPane scroll;
 	JPanel control;
 	JTable table;
@@ -32,8 +32,7 @@ public class StageSel extends JFrame {
 		setTitle("스테이지");
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);	// 창 종료버튼 비활성화
 		setSize(Project.windowSize.x / 5, Project.windowSize.y / 3); // 창 크기
-		setLocation((Project.screenSize.x + Project.windowSize.x) / 2, (Project.screenSize.y - Project.windowSize.y) / 2
-				+ Project.windowSize.y / 3);
+		//setLocation((Project.screenSize.x + Project.windowSize.x) / 2, (Project.screenSize.y - Project.windowSize.y) / 2+ Project.windowSize.y / 3);
 		setLayout(new BorderLayout()); // 동서남북중앙을 가지는 레이아웃 
 		scanData=new String[3];
 		monsterList=new LinkedList<String[]>();
@@ -49,11 +48,7 @@ public class StageSel extends JFrame {
 		add(control, BorderLayout.SOUTH);
 		scroll.setViewportView(table);
 		
-		readStage("stage1");
-		while(!monsterList.isEmpty()){
-			scanData=monsterList.poll();
-			System.out.printf("%s/%s,%s\n",scanData[0],scanData[1],scanData[2]);
-		}
+		readStage("stage");
 		
 	}
 	void readStage(String s){

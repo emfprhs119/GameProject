@@ -1,28 +1,24 @@
 package Frame;
-import java.awt.Container;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
-import Listener.GotoFrame;
+import Listener.GotoPanel;
 import Main.Project;
 
-public class StoryMode extends JFrame {
-	JButton difficulty, back;
-	JLabel label;
-	JFrame mainMenu;	// 메인으로 돌아가기 위한 프레임
+@SuppressWarnings("serial")
+public class StoryMode extends JPanel {	//스테이지 선택
+	JButton difficulty, back;	//난이도 버튼,뒤로가기(메인메뉴) 버튼
+	JLabel label;	//임시 라벨
 	StoryRoom gameRoom;	// 게임룸 생성
-	StoryMode(JFrame mainMenu) {
-		setSize(Project.windowSize.x, Project.windowSize.y); // 창 크기
-		setLocation((Project.screenSize.x - Project.windowSize.x) / 2, (Project.screenSize.y - Project.windowSize.y) / 2); // 정중앙
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.mainMenu = mainMenu;
+	private GameFrame gameFrame;	//마스터 프레임 얻어옴
+	StoryMode(GameFrame gameFrame) {	//생성자
+		this.gameFrame=gameFrame;
+		gameRoom=gameFrame.storyRoom;
 		setLayout(null); // 레이아웃을 null로 해줘야 맘대로 배치가 가능
 		initObject(); // 버튼과 라벨을 초기화 시켜주는 메소드
 		addObject(); // 버튼과 라벨을 추가 시켜주는 메소드
@@ -30,7 +26,7 @@ public class StoryMode extends JFrame {
 	}
 
 	private void initObject() {	// 초기화
-		gameRoom = new StoryRoom(mainMenu,this);	// 게임 룸 초기화
+		//gameRoom = new StoryRoom(mainMenu,this);	// 게임 룸 초기화
 		
 		difficulty = new JButton("normal");
 		setButtonImage(difficulty, "normal.png"); // 디폴트 노멀 -스위치 하드
@@ -38,7 +34,7 @@ public class StoryMode extends JFrame {
 		difficulty.setLocation(100, 250);
 
 		back = new JButton("back");
-		back.addMouseListener(new GotoFrame(this, mainMenu));
+		back.addMouseListener(new GotoPanel(gameFrame, "mainMenu"));
 		back.setBounds(15, 15, 100, 50);
 		
 	}
@@ -49,7 +45,7 @@ public class StoryMode extends JFrame {
 		for(int i=1;i<5;i++){
 			label = new JLabel(String.valueOf(i));
 			Project.setLabelImage(label, "stage.png");
-			label.addMouseListener(new GotoFrame(this,gameRoom));
+			label.addMouseListener(new GotoPanel(gameFrame,"storyRoom"));
 			label.addMouseListener(new StageAction());
 			label.setLocation(220+55*i, 250);
 			add(label);
@@ -68,6 +64,7 @@ public class StoryMode extends JFrame {
 	
 
 	class difficultyAction extends MouseAdapter {		// difficulty 스위치 구현
+		@SuppressWarnings("deprecation")
 		public void mouseClicked(MouseEvent e) {
 			if (e.getButton() == MouseEvent.BUTTON1) { // 왼쪽버튼
 				// ///////////////////////////////////////////////// level 스위치 구현
@@ -82,22 +79,11 @@ public class StoryMode extends JFrame {
 		}
 	}
 	class StageAction extends MouseAdapter {
+		@SuppressWarnings("deprecation")
 		public void mouseClicked(MouseEvent e) {
 			if (e.getButton() == MouseEvent.BUTTON1) { // 왼쪽버튼
 				gameRoom.Initialization(difficulty.getLabel(),((JLabel) e.getComponent()).getText());	// 어떤걸 클릭했는지 어려움모드는 뭔지 여기서 판단하고 초기화함수 호출
 			}
 		}
-	}
-}
-class Back extends Container {
-	JButton button;
-	Back(StoryRoom room) {
-		setSize(1280/3, 800); // 창 크기
-		setLocation(1280/3, 0); // 창 위치
-		this.setLayout(null);
-		button = new JButton("메인메뉴로");
-		button.setBounds(700, 0, 20, 20);
-		add(button);
-		button.addMouseListener(new GotoFrame(room.mainMenu,room));
 	}
 }

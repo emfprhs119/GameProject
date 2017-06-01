@@ -4,30 +4,23 @@ import java.awt.Point;
 
 import Frame.StoryRoom;
 
-public class BulletOfCharacter extends Bullet {
+@SuppressWarnings("serial")
+public class BulletOfCharacter extends Bullet {// 플레이어의 총알
 
-	public BulletOfCharacter(Point xy, Point point, StoryRoom room) {
+	public BulletOfCharacter(Point xy, Point point, StoryRoom room) {	//위치,이동방향,게임창 파라메터
 		super(xy, point, room);
-		speed=2f;
+		speed=0.8f;
 		// TODO Auto-generated constructor stub
 	}
-	public void attackedDecision() {
+	public void attackedDecision() {	//몬스터와 플레이어의 피격대상이 다름
 		setOrigin();
 		it=room.monsterList.iterator();
 		while(it.hasNext()){
-			obj=(MoveObject) it.next();
-			if (distance(obj)){
-				obj.damage(10);
+			other=(MoveObject) it.next();
+			if (distanceTo(other)<=other.width/2){
+				other.damage(30);	//데미지
 				remove();
 				break;
-			}
-		}
-		it=room.blockList.iterator();
-		while(it.hasNext()){
-			obj1=(Block) it.next();
-		if (originY+height/2>=obj1.originY-(obj1.height/2) && originY-height/2<=obj1.originY+(obj1.height/2))
-			if ((originX-width/2<obj1.originX+obj1.width/2) &&(originX+width/2>obj1.originX-obj1.width/2)){
-				remove();
 			}
 		}
 	}

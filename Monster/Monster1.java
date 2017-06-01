@@ -4,66 +4,88 @@ import java.awt.Point;
 
 import Frame.*;
 import Main.Project;
+import Object.Bullet;
 import Object.BulletOfMonster;
-import Object.Hp;
 import Object.Monster;
-import Object.MoveObject;
 
+//첫번째 몬스터 클래스
+@SuppressWarnings("serial")
 public class Monster1 extends Monster { // 이름 가명칭-이름을 제대로 지어줍시다! 몬스터1이라니! 어떻게 알아먹나요!
+	public enum Motion { // 모션 정의
+		Init, Move, Attack
+	};
 
-	public Monster1(Point xy,StoryRoom room) {
-		super(xy,room);
-		MonsterNum = 1;
+	Motion motion; // motion과 충돌이 일어나므로 사용하지 않을경우 null로 만들어줌(좋은 생각 떠오르면 수정예정)
+	private Bullet bullet; // 공격 총알
+	boolean attackFlag;
+
+	public Monster1(Point xy, StoryRoom room) { // 생성자 (위치와 게임창 받아옴)
+		super(xy, room);
+		setImage("Monster1Init.gif");
+		speed = 0.04f;
+		motion = Motion.Init;
+		attackFlag = false;
+	}
+
+	public void step() { // 몬스터별 필요한 작업은 추가로 재정의해서 사용해야한다.
+
+		super.step();
+		setImage(name + motion.name() + ".gif");
+	}
+
+	public void attackStep() {
+		if (distanceTo(room.player) > 250) {
+			if (count % (100 * 17 / room.step) == 0) {
+				setAngle(room.player.getPoint());
+				motion = Motion.Attack;
+				attack();
+			}
+			if (count % (120 * 17 / room.step) == 0) {
+				motion = Motion.Init;
+				count = 0;
+			}
+		}
+	}
+
+	public void moveStep() {
+		room.player.setOrigin();
 		
-		setImage("monster.png");
-		speed = 0.5f; // 이건 좀 애매한데  속도라..
-		// TODO Auto-generated constructor stub
-		
-	}
-	
-	public Monster1() {
-		// TODO Auto-generated constructor stub
+			if (distanceTo(room.player) < 250) {
+				if (!attackFlag){
+				speed = 0.10f;
+
+				gotoX = (float) (room.player.originX - originX);
+				gotoY = (float) (room.player.originY - originY);
+				setAngle(room.player.getPoint());
+				motion = Motion.Init;
+				if (distanceTo(room.player) < 150) {
+					motion = Motion.Attack;
+					speed = 0.2f;
+					if (distanceTo(room.player) < 80) {
+						attack();
+						gotoX = -(float) (room.player.originX - originX);
+						gotoY = -(float) (room.player.originY - originY);
+						attackFlag=true;
+					}
+				}
+				}
+			} else {
+				attackFlag=false;
+				if (!attackFlag){
+				if (count % (120 * 17 / room.step) == 0) {
+					speed = 0.04f;
+					gotoX = (Math.random() * Project.windowSize.x) - Project.windowSize.x / 2;
+					gotoY = (Math.random() * Project.windowSize.y) - Project.windowSize.y / 2;
+					setAngle(new Point((int) gotoX, (int) gotoY));
+					}
+				}
+			}
+		super.move();
 	}
 
-	public void step(){
-		moveCount++;
-		attackCount++;
-		if (moveCount > 150) {
-			gotoXY();
-			moveCount = 0;
-		}
-		if (attackCount > 500) {
-			attack();
-			attackCount = 0;
-		}
-		move();
-		hpMove();
+	public void attack() { // 공격 모션
+		bullet = new BulletOfMonster(getPoint(), room.player.getPoint(), room);
+		room.bulletList.add((Bullet) bullet);
+		room.add(bullet);
 	}
-	
-	public void gotoXY() { // 어느방향으로 가게 만들지 명시	// 패턴 연구 필요!!!!!
-		/*gotoX = x+(Math.random()) * 800-400;
-		gotoY = y+(Math.random()) * 800-400;*/
-		switch((int)Math.round(Math.random()*100)%8){
-		case 0:gotoX=x-300;gotoY=y-300;break;
-		case 1:gotoX=x+300;gotoY=y+300;break;
-		case 2:gotoX=x+300;gotoY=y-300;break;
-		case 3:gotoX=x-300;gotoY=y+300;break;
-		case 4:gotoX=x-0;gotoY=y-300;break;
-		case 5:gotoX=x-300;gotoY=y-0;break;
-		case 6:gotoX=x-0;gotoY=y+300;break;
-		case 7:gotoX=x+300;gotoY=y-0;break;
-		}
-		setAngle(new Point((int) gotoX, (int) gotoY));
-	}
-
-	
-	
-	public void attack() {
-			Project.sound("attack.wav", false);
-			//double bulltX = room.player.getPoint().x;
-			//double bulltY = room.player.getPoint().y + (Math.random() * 30 + 10);	//랜덤 나중에 이용해봐야지	이곳도 패턴연구 필요
-			room.add(new BulletOfMonster(getPoint(), room.player.getPoint(), room));
-	}
-	
-	
 }

@@ -3,32 +3,22 @@ package Object;
 import java.awt.Point;
 import java.util.Iterator;
 
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-
 import Frame.StoryRoom;
 
-public class Bullet extends MoveObject {
-	/*필요 알고리즘 
-	 * 몬스터와 부딪쳤을시 제거(몬스터 체력 저하를 여기서 할까 몬스터쪽에서 할까)
-	 */
-	Iterator it; //피격판정을 위한 반복자
-	MoveObject obj;
-	Block obj1;
-	double di;
-	
-	public Bullet(Point xy, Point gotoXY,StoryRoom p) {	// 플레이어와 몬스터의 공격액션을 담당(둘다 상속받아서 사용)
-		super(p); // 상속 진짜 good!!!!!!!!!
+@SuppressWarnings("serial")
+public class Bullet extends MoveObject {//총알 오브젝트-플레이어와 몬스터의 공격액션을 담당(둘다 상속받아서 사용)
+	Iterator<?> it; //피격판정을 위한 반복자
+	MoveObject other;	//피격대상
+	public Bullet(Point xy, Point gotoXY,StoryRoom room) {	// 생성자 위치와 공격할 위치,게임창을 받아옴
+		super(room); // 상속 진짜 good!!!!!!!!!
 		x = xy.x;
 		y = xy.y;
-		speed = 1f;
+		speed = 0.5f;
 		setImage("bullet.png");
 		setAngle(gotoXY);
-		thread.start();
-		//removeAll();
-		
+		soundAttack.play();
 	}
-	public void step(){
+	public void step(){		//매시간 작동
 		moving();
 		attackedDecision();
 	}
@@ -36,31 +26,19 @@ public class Bullet extends MoveObject {
 		// TODO Auto-generated method stub
 		
 	}
-	public void moving() {
+	public void moving() {	//이동
+		
 		angle = (float)Math.sqrt(Math.pow(angleX, (float) 2) + Math.pow(angleY, (float) 2));
-		x += speed * (angleX / angle);
-		y += speed * (angleY / angle);
-		setLocation((int) x, (int) y);
-		if (x>room.getWidth()-50-13 || x<50-8+3 || y>room.getHeight()-50-30-3 || y<40+3){
+		x += speed * (angleX / angle)*room.step;
+		y += speed * (angleY / angle)*room.step;
+		collider(); // 벽 충돌확인
+		if (flagX!=0 || flagY!=0) {// 충돌{
 			remove();
-			/*이거 일단 제거이긴 한데 new로 만들어진것이기 때문에 
-			 * 자신을 null값으로 만들 방법이 없음 메인에서 하나씩 할당하고 null로 제거해도 되지만 
-			 * 그냥 이대로 둬도 될것같은데 어떨까 
-			 */
 		}
-	}
-	
-	public boolean distance(MoveObject object){
-		object.setOrigin();
-		di = Math.sqrt(Math.pow(originX-object.originX, (float) 2) + Math.pow(originY-object.originY, (float) 2));
-		if (di<object.width/2)
-			return true;
-		else
-			return false;
+		setLocation((int) x, (int) y);
 	}
 	@Override
-	void damage(int power) {
+	void damage(int power) {	//사용하지 않음(나중에 사용할지도 모름)
 		// TODO Auto-generated method stub
-		
 	}
 }

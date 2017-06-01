@@ -9,7 +9,7 @@ import Frame.RoomCreate;
 
 
 public class RoomCreateListener implements KeyListener, MouseMotionListener, MouseListener {
-
+	//¹Ì±¸Çö
 	public RoomCreateListener(RoomCreate roomCreate) {
 		// TODO Auto-generated constructor stub
 	}
